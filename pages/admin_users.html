@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users - MakaziPrime Admin</title>
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header"><i class="fas fa-building" style="margin-right: 10px;"></i> MakaziPrime</div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="admin.html"><i class="fas fa-th-large"></i> Dashboard</a></li>
+                <li><a href="admin_properties.html"><i class="fas fa-home"></i> Properties</a></li>
+                <li><a href="admin_bookings.html"><i class="fas fa-calendar-check"></i> Bookings</a></li>
+                <li><a href="admin_users.html" class="active"><i class="fas fa-users"></i> Users</a></li>
+                <li><a href="admin_logs.html"><i class="fas fa-clipboard-list"></i> Logs</a></li>
+            </ul>
+        </nav>
+        <div class="sidebar-user">
+            <div>Logged in as: <br><strong id="adminName">Loading...</strong></div>
+            <a href="#" onclick="logout()" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-header">
+            <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+            <h1 class="page-title">User Management</h1>
+            <div></div>
+        </header>
+
+        <div class="content-wrapper">
+            <div class="data-table-container">
+                <table id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Full Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Joined</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- JS renders -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script src="../assets/js/admin.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', loadUsers);
+
+        async function loadUsers() {
+            const data = await fetchAPI('users/read.php');
+            const tbody = document.querySelector('#usersTable tbody');
+            tbody.innerHTML = '';
+
+            data.forEach(user => {
+                const tr = document.createElement('tr');
+                let roleBadge = user.role === 'admin' ? 'badge-danger' : 'badge-info';
+
+                let actions = '';
+                if (user.role === 'buyer') {
+                    actions += `<button class="btn btn-primary btn-sm" onclick="changeRole(${user.user_id}, 'admin')">Promote to Admin</button> `;
+                } else {
+                    actions += `<button class="btn btn-warning btn-sm" onclick="changeRole(${user.user_id}, 'buyer')">Demote to Buyer</button> `;
+                }
+
+                tr.innerHTML = `
+                    <td>${user.user_id}</td>
+                    <td>${user.full_name}</td>
+                    <td>${user.email}</td>
+                    <td><span class="badge ${roleBadge}">${user.role.toUpperCase()}</span></td>
+                    <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                    <td>${actions}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function changeRole(id, newRole) {
+            showConfirmModal(`Are you sure you want to change user #${id} role to ${newRole}?`, async () => {
+                const res = await fetchAPI('users/update_status.php', 'POST', { user_id: id, role: newRole });
+                if (res.message) {
+                    alert(res.message);
+                    loadUsers();
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

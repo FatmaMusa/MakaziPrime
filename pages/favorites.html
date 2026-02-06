@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Favorites - MakaziPrime</title>
+    <link rel="stylesheet" href="../assets/css/public.css">
+    <link rel="stylesheet" href="../assets/css/landing.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <div id="header-placeholder" data-root="../"></div>
+
+    <div class="main-container">
+        <div class="section-header" style="margin-bottom: 30px;">
+            <h1 class="section-title"><i class="fas fa-heart" style="color:#e74c3c;"></i> My Favorites</h1>
+            <span class="property-count" id="favoriteCount">Loading...</span>
+        </div>
+
+        <div class="property-grid" id="favoritesGrid">
+            <!-- JS renders -->
+        </div>
+
+        <!-- Not logged in message -->
+        <div id="loginMessage" style="display:none; text-align:center; padding:60px 20px;">
+            <i class="fas fa-lock" style="font-size:4rem; color:#ddd; margin-bottom:20px;"></i>
+            <h3 style="color:#333; margin-bottom:10px;">Please Login</h3>
+            <p style="color:#666; margin-bottom:20px;">You need to login to view your saved properties.</p>
+            <a href="login.html" class="btn-filter" style="display:inline-block; width:auto; padding:12px 30px;">Login
+                Now</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div id="footer-placeholder" data-root="../"></div>
+
+    <script>
+        const API_BASE = '../api';
+        let currentUser = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadComponent('header-placeholder', '../components/header.html');
+            await loadComponent('footer-placeholder', '../components/footer.html');
+
+            // Update active nav link
+            setTimeout(() => {
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.remove('active');
+                    if (link.href.includes('favorites.html')) link.classList.add('active');
+                });
+            }, 100);
+
+            await checkUserSession();
+        });
+
+        // Load HTML component and fix paths
+        async function loadComponent(elementId, path) {
+            try {
+                const el = document.getElementById(elementId);
+                const root = el.getAttribute('data-root') || '';
+                const res = await fetch(path);
+                let html = await res.text();
+
+                // Fix paths based on root
+                html = html.replace(/href="index\.html/g, `href="${root}index.html`);
+                html = html.replace(/href="properties\.html/g, `href="${root}pages/properties.html`);
+                html = html.replace(/href="favorites\.html/g, `href="${root}pages/favorites.html`);
+                html = html.replace(/href="login\.html/g, `href="${root}pages/login.html`);
+                html = html.replace(/href="portal\.html/g, `href="${root}pages/portal.html`);
+
+                el.innerHTML = html;
+
+                // Execute scripts in the loaded HTML
+                const scripts = el.querySelectorAll('script');
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                    newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                    oldScript.parentNode.replaceChild(newScript, oldScript);
+                });
+            } catch (e) {
+                console.error('Error loading component:', e);
+            }
+        }
+
+        async function checkUserSession() {
+            try {
+                const res = await fetch(`${API_BASE}/auth/check_session.php`);
+                const data = await res.json();
+                if (data.loggedIn) {
+                    currentUser = data.user;
+                    loadFavorites();
+                } else {
+                    document.getElementById('loginMessage').style.display = 'block';
+                    document.getElementById('favoriteCount').textContent = '';
+                }
+            } catch (e) {
+                document.getElementById('loginMessage').style.display = 'block';
+            }
+        }
+
+        async function loadFavorites() {
+            try {
+                const res = await fetch(`${API_BASE}/favorites/read.php`);
+                const favorites = await res.json();
+                renderFavorites(favorites);
+            } catch (e) {
+                console.error('Error loading favorites:', e);
+            }
+        }
+
+        function renderFavorites(favorites) {
+            const grid = document.getElementById('favoritesGrid');
+            const countEl = document.getElementById('favoriteCount');
+
+            if (!favorites || favorites.length === 0) {
+                grid.innerHTML = `
+                    <div class="no-results" style="grid-column: 1/-1;">
+                        <i class="fas fa-heart-broken"></i>
+                        <h3>No saved properties yet</h3>
+                        <p>Browse properties and click the heart icon to save them here</p>
+                        <a href="properties.html" class="btn-filter" style="display:inline-block; width:auto; margin-top:20px;">Browse Properties</a>
+                    </div>
+                `;
+                countEl.textContent = '0 properties saved';
+                return;
+            }
+
+            countEl.textContent = `${favorites.length} properties saved`;
+            grid.innerHTML = '';
+
+            favorites.forEach(prop => {
+                const statusClass = `status-${prop.status}`;
+                const isSold = prop.status === 'sold' || prop.status === 'rented';
+
+                // Listing type badge
+                const isRental = prop.listing_type === 'rent';
+                const listingBadge = isRental
+                    ? '<span class="listing-badge rent">For Rent</span>'
+                    : '<span class="listing-badge sale">For Sale</span>';
+
+                // Price format
+                const priceLabel = isRental
+                    ? `Tsh ${Number(prop.price).toLocaleString()}/${prop.rent_period || 'month'}`
+                    : `Tsh ${Number(prop.price).toLocaleString()}`;
+
+                const btnText = prop.status === 'sold' ? 'Sold' : (prop.status === 'rented' ? 'Rented' : 'View Details');
+
+                grid.innerHTML += `
+                    <div class="property-card" onclick="window.location='properties.html?view=${prop.property_id}'">
+                        <div class="property-image">
+                            <img src="../${prop.image_url || 'assets/uploads/default.jpg'}" alt="${prop.title}">
+                            ${listingBadge}
+                            <span class="property-status ${statusClass}">${prop.status}</span>
+                            <button class="favorite-btn active" onclick="removeFavorite(event, ${prop.property_id})">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                        </div>
+                        <div class="property-info">
+                            <span class="property-type">${prop.type_name}</span>
+                            <h3 class="property-title">${prop.title}</h3>
+                            <p class="property-location"><i class="fas fa-map-marker-alt"></i> ${prop.location}</p>
+                            <div class="property-features">
+                                <span class="feature"><i class="fas fa-bed"></i> ${prop.bedrooms} Beds</span>
+                                <span class="feature"><i class="fas fa-bath"></i> ${prop.bathrooms} Baths</span>
+                                <span class="feature"><i class="fas fa-vector-square"></i> ${prop.area_sqft} sqft</span>
+                            </div>
+                            <div class="property-footer">
+                                <span class="property-price">${priceLabel}</span>
+                                <button class="btn-view" ${isSold ? 'disabled' : ''}>${btnText}</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        async function removeFavorite(event, propertyId) {
+            event.stopPropagation();
+
+            try {
+                const res = await fetch(`${API_BASE}/favorites/add.php`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ property_id: propertyId })
+                });
+                const data = await res.json();
+                loadFavorites(); // Reload list
+            } catch (e) {
+                console.error('Error removing favorite:', e);
+            }
+        }
+    </script>
+</body>
+
+</html>

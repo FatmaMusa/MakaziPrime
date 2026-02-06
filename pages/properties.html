@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Properties - MakaziPrime Real Estate</title>
+    <link rel="stylesheet" href="../assets/css/public.css">
+    <link rel="stylesheet" href="../assets/css/landing.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <div id="header-placeholder" data-root="../"></div>
+
+    <div class="main-container">
+        <div class="page-layout">
+            <!-- Filter Sidebar -->
+            <aside class="filter-sidebar">
+                <h3 class="filter-title"><i class="fas fa-sliders-h"></i> Filter Properties</h3>
+
+                <div class="filter-group">
+                    <label class="filter-label">Listing Type</label>
+                    <select id="filterListingType" class="filter-control">
+                        <option value="">All</option>
+                        <option value="sale">For Sale</option>
+                        <option value="rent">For Rent</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Property Type</label>
+                    <select id="filterType" class="filter-control">
+                        <option value="">All Types</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Price Range (Tsh)</label>
+                    <div class="price-range">
+                        <input type="number" id="filterMinPrice" class="filter-control" placeholder="Min">
+                        <input type="number" id="filterMaxPrice" class="filter-control" placeholder="Max">
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Bedrooms</label>
+                    <select id="filterBedrooms" class="filter-control">
+                        <option value="">Any</option>
+                        <option value="1">1+</option>
+                        <option value="2">2+</option>
+                        <option value="3">3+</option>
+                        <option value="4">4+</option>
+                        <option value="5">5+</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Location</label>
+                    <input type="text" id="filterLocation" class="filter-control" placeholder="Enter location...">
+                </div>
+
+                <button class="btn-filter" onclick="applyFilters()">
+                    <i class="fas fa-search"></i> Apply Filters
+                </button>
+                <button class="btn-reset" onclick="resetFilters()">
+                    <i class="fas fa-undo"></i> Reset
+                </button>
+            </aside>
+
+            <!-- Properties Grid -->
+            <section class="properties-section">
+                <div class="section-header">
+                    <h1 class="section-title">Available Properties</h1>
+                    <span class="property-count" id="propertyCount">Loading...</span>
+                </div>
+
+                <div class="property-grid" id="propertyGrid">
+                    <!-- JS renders property cards -->
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Lightbox Modal -->
+    <div class="lightbox" id="propertyModal">
+        <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+        <div class="lightbox-content">
+            <img src="" alt="Property" class="lightbox-image" id="modalImage">
+            <div class="lightbox-body">
+                <div class="lightbox-header">
+                    <div>
+                        <span class="property-type" id="modalType"></span>
+                        <span class="listing-badge" id="modalListingType"></span>
+                        <h2 class="lightbox-title" id="modalTitle"></h2>
+                    </div>
+                    <div class="lightbox-price" id="modalPrice"></div>
+                </div>
+
+                <p class="lightbox-location"><i class="fas fa-map-marker-alt"></i> <span id="modalLocation"></span></p>
+
+                <div class="lightbox-features" id="modalFeatures">
+                    <div class="feature"><i class="fas fa-bed"></i> <span id="modalBeds">0</span> Beds</div>
+                    <div class="feature"><i class="fas fa-bath"></i> <span id="modalBaths">0</span> Baths</div>
+                    <div class="feature"><i class="fas fa-vector-square"></i> <span id="modalArea">0</span> sqft</div>
+                    <div class="feature"><i class="fas fa-tag"></i> <span id="modalStatus">Available</span></div>
+                </div>
+
+                <p class="lightbox-desc" id="modalDescription"></p>
+
+                <!-- Booking Section -->
+                <div class="booking-section" id="bookingSection">
+                    <h4 class="booking-title"><i class="fas fa-calendar-alt"></i> Schedule a Viewing</h4>
+                    <form class="booking-form" id="bookingForm" onsubmit="submitBooking(event)">
+                        <input type="hidden" id="bookingPropertyId">
+                        <div class="form-group">
+                            <label>Preferred Date</label>
+                            <input type="date" id="bookingDate" required min="">
+                        </div>
+                        <div class="form-group">
+                            <label>Preferred Time</label>
+                            <select id="bookingTime" required>
+                                <option value="09:00">9:00 AM</option>
+                                <option value="10:00">10:00 AM</option>
+                                <option value="11:00">11:00 AM</option>
+                                <option value="12:00">12:00 PM</option>
+                                <option value="14:00">2:00 PM</option>
+                                <option value="15:00">3:00 PM</option>
+                                <option value="16:00">4:00 PM</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-book" id="btnBook">
+                            <i class="fas fa-calendar-check"></i> Book Viewing
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Reviews Section -->
+                <div class="reviews-section">
+                    <div class="reviews-header">
+                        <h4><i class="fas fa-star"></i> Reviews</h4>
+                        <div class="rating-summary">
+                            <span class="rating-stars" id="avgRatingStars"></span>
+                            <span id="avgRating">0</span> (<span id="totalReviews">0</span> reviews)
+                        </div>
+                    </div>
+                    <div id="reviewsList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Prompt Modal -->
+    <div class="login-prompt" id="loginPrompt">
+        <div class="login-prompt-content">
+            <h3><i class="fas fa-lock"></i> Login Required</h3>
+            <p>Please login to add favorites or book a viewing.</p>
+            <div class="login-prompt-btns">
+                <a href="login.html" class="btn-filter">Login</a>
+                <button class="btn-reset" onclick="closeLoginPrompt()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div id="footer-placeholder" data-root="../"></div>
+
+    <script>
+        const API_BASE = '../api';
+        let currentUser = null;
+        let userFavorites = [];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadComponent('header-placeholder', '../components/header.html');
+            await loadComponent('footer-placeholder', '../components/footer.html');
+
+            // Update active nav link
+            setTimeout(() => {
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.remove('active');
+                    if (link.href.includes('properties.html')) link.classList.add('active');
+                });
+            }, 100);
+
+            // Session check is now handled by header.html script automatically
+            await loadPropertyTypes(); // Wait for types to load first
+            applyURLFilters(); // Then apply filters and load properties
+            setMinDate();
+            checkUserSession();
+        });
+
+        // Load HTML component and fix paths
+        async function loadComponent(elementId, path) {
+            try {
+                const el = document.getElementById(elementId);
+                const root = el.getAttribute('data-root') || '';
+                const res = await fetch(path);
+                let html = await res.text();
+
+                // Fix paths based on root
+                html = html.replace(/href="index\.html/g, `href="${root}index.html`);
+                html = html.replace(/href="properties\.html/g, `href="${root}pages/properties.html`);
+                html = html.replace(/href="favorites\.html/g, `href="${root}pages/favorites.html`);
+                html = html.replace(/href="login\.html/g, `href="${root}pages/login.html`);
+                html = html.replace(/href="portal\.html/g, `href="${root}pages/portal.html`);
+
+                el.innerHTML = html;
+
+                // Execute scripts in the loaded HTML
+                const scripts = el.querySelectorAll('script');
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                    newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                    oldScript.parentNode.replaceChild(newScript, oldScript);
+                });
+            } catch (e) {
+                console.error('Error loading component:', e);
+            }
+        }
+
+        // Apply filters from URL
+        function applyURLFilters() {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('type_id')) document.getElementById('filterType').value = params.get('type_id');
+            if (params.get('location')) document.getElementById('filterLocation').value = params.get('location');
+            if (params.get('bedrooms')) document.getElementById('filterBedrooms').value = params.get('bedrooms');
+            if (params.get('listing_type')) document.getElementById('filterListingType').value = params.get('listing_type');
+
+            // Check if view param exists (open property modal)
+            if (params.get('view')) {
+                openLightbox(params.get('view'));
+            }
+
+            // Always load properties (with or without filters)
+            loadProperties();
+        }
+
+        // Check if user is logged in
+        async function checkUserSession() {
+            try {
+                const res = await fetch(`${API_BASE}/auth/check_session.php`);
+                const data = await res.json();
+                if (data.loggedIn) {
+                    currentUser = data.user;
+                    loadUserFavorites();
+                }
+            } catch (e) {
+                console.log('Not logged in');
+            }
+        }
+
+        // Load user's favorites
+        async function loadUserFavorites() {
+            if (!currentUser) return;
+            try {
+                const res = await fetch(`${API_BASE}/favorites/read.php`);
+                const data = await res.json();
+                userFavorites = data.map(f => f.property_id);
+            } catch (e) {
+                console.error('Error loading favorites:', e);
+            }
+        }
+
+        // Load property types for filter
+        async function loadPropertyTypes() {
+            try {
+                const res = await fetch(`${API_BASE}/properties/types.php`);
+                const types = await res.json();
+                const select = document.getElementById('filterType');
+                types.forEach(type => {
+                    select.innerHTML += `<option value="${type.type_id}">${type.name}</option>`;
+                });
+            } catch (e) {
+                console.error('Error loading types:', e);
+            }
+        }
+
+        // Load properties with filters
+        async function loadProperties() {
+            const params = new URLSearchParams();
+
+            const listingType = document.getElementById('filterListingType').value;
+            const minPrice = document.getElementById('filterMinPrice').value;
+            const maxPrice = document.getElementById('filterMaxPrice').value;
+            const typeId = document.getElementById('filterType').value;
+            const bedrooms = document.getElementById('filterBedrooms').value;
+            const location = document.getElementById('filterLocation').value;
+
+            if (listingType) params.append('listing_type', listingType);
+            if (minPrice) params.append('min_price', minPrice);
+            if (maxPrice) params.append('max_price', maxPrice);
+            if (typeId) params.append('type_id', typeId);
+            if (bedrooms) params.append('bedrooms', bedrooms);
+            if (location) params.append('location', location);
+
+            try {
+                const res = await fetch(`${API_BASE}/properties/read.php?${params.toString()}`);
+                const properties = await res.json();
+                renderProperties(properties);
+            } catch (e) {
+                console.error('Error loading properties:', e);
+            }
+        }
+
+        // Render property cards
+        function renderProperties(properties) {
+            const grid = document.getElementById('propertyGrid');
+            const countEl = document.getElementById('propertyCount');
+
+            if (!properties || properties.length === 0) {
+                grid.innerHTML = `
+                    <div class="no-results">
+                        <i class="fas fa-home"></i>
+                        <h3>No properties found</h3>
+                        <p>Try adjusting your filters</p>
+                    </div>
+                `;
+                countEl.textContent = '0 properties';
+                return;
+            }
+
+            countEl.textContent = `${properties.length} properties found`;
+            grid.innerHTML = '';
+
+            properties.forEach(prop => {
+                const isFavorite = userFavorites.includes(parseInt(prop.property_id));
+                const statusClass = `status-${prop.status}`;
+                const isSold = prop.status === 'sold' || prop.status === 'rented';
+
+                const isRental = prop.listing_type === 'rent';
+                const listingBadge = isRental
+                    ? '<span class="listing-badge rent">For Rent</span>'
+                    : '<span class="listing-badge sale">For Sale</span>';
+
+                const priceLabel = isRental
+                    ? `Tsh ${Number(prop.price).toLocaleString()}/${prop.rent_period || 'month'}`
+                    : `Tsh ${Number(prop.price).toLocaleString()}`;
+
+                const btnText = prop.status === 'sold' ? 'Sold' : (prop.status === 'rented' ? 'Rented' : 'View Details');
+
+                grid.innerHTML += `
+                    <div class="property-card" onclick="openLightbox(${prop.property_id})">
+                        <div class="property-image">
+                            <img src="../${prop.image_url || 'assets/uploads/default.jpg'}" alt="${prop.title}">
+                            ${listingBadge}
+                            <span class="property-status ${statusClass}">${prop.status}</span>
+                            <button class="favorite-btn ${isFavorite ? 'active' : ''}" onclick="toggleFavorite(event, ${prop.property_id})">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                        </div>
+                        <div class="property-info">
+                            <span class="property-type">${prop.type_name}</span>
+                            <h3 class="property-title">${prop.title}</h3>
+                            <p class="property-location"><i class="fas fa-map-marker-alt"></i> ${prop.location}</p>
+                            <div class="property-features">
+                                <span class="feature"><i class="fas fa-bed"></i> ${prop.bedrooms} Beds</span>
+                                <span class="feature"><i class="fas fa-bath"></i> ${prop.bathrooms} Baths</span>
+                                <span class="feature"><i class="fas fa-vector-square"></i> ${prop.area_sqft} sqft</span>
+                            </div>
+                            <div class="property-footer">
+                                <span class="property-price">${priceLabel}</span>
+                                <button class="btn-view" ${isSold ? 'disabled' : ''}>${btnText}</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Apply filters
+        function applyFilters() {
+            loadProperties();
+        }
+
+        // Reset filters
+        function resetFilters() {
+            document.getElementById('filterListingType').value = '';
+            document.getElementById('filterMinPrice').value = '';
+            document.getElementById('filterMaxPrice').value = '';
+            document.getElementById('filterType').value = '';
+            document.getElementById('filterBedrooms').value = '';
+            document.getElementById('filterLocation').value = '';
+            loadProperties();
+        }
+
+        // Real-time filtering on input change
+        document.querySelectorAll('.filter-control').forEach(input => {
+            input.addEventListener('change', applyFilters);
+        });
+
+        // Open lightbox modal with property details
+        async function openLightbox(propertyId) {
+            try {
+                const res = await fetch(`${API_BASE}/properties/read_single.php?id=${propertyId}`);
+                const prop = await res.json();
+
+                document.getElementById('modalImage').src = `../${prop.image_url || 'assets/uploads/default.jpg'}`;
+                document.getElementById('modalType').textContent = prop.type_name;
+
+                const listingBadge = document.getElementById('modalListingType');
+                if (prop.listing_type === 'rent') {
+                    listingBadge.textContent = 'For Rent';
+                    listingBadge.className = 'listing-badge rent';
+                    document.getElementById('modalPrice').textContent = `Tsh ${Number(prop.price).toLocaleString()}/${prop.rent_period || 'month'}`;
+                } else {
+                    listingBadge.textContent = 'For Sale';
+                    listingBadge.className = 'listing-badge sale';
+                    document.getElementById('modalPrice').textContent = `Tsh ${Number(prop.price).toLocaleString()}`;
+                }
+
+                document.getElementById('modalTitle').textContent = prop.title;
+                document.getElementById('modalLocation').textContent = prop.location;
+                document.getElementById('modalBeds').textContent = prop.bedrooms;
+                document.getElementById('modalBaths').textContent = prop.bathrooms;
+                document.getElementById('modalArea').textContent = prop.area_sqft;
+                document.getElementById('modalStatus').textContent = prop.status;
+                document.getElementById('modalDescription').textContent = prop.description || 'No description available.';
+                document.getElementById('bookingPropertyId').value = prop.property_id;
+
+                // Differentiate booking UI
+                const bookingTitle = document.querySelector('.booking-title');
+                const btnBook = document.getElementById('btnBook');
+
+                if (prop.listing_type === 'rent') {
+                    bookingTitle.innerHTML = '<i class="fas fa-calendar-alt"></i> Schedule a Rental Viewing';
+                    btnBook.innerHTML = '<i class="fas fa-calendar-check"></i> Book Rental Viewing';
+                } else {
+                    bookingTitle.innerHTML = '<i class="fas fa-calendar-alt"></i> Schedule a Home Viewing';
+                    btnBook.innerHTML = '<i class="fas fa-calendar-check"></i> Book Property Viewing';
+                }
+
+                // Handle sold/rented properties
+                const bookingSection = document.getElementById('bookingSection');
+                if (prop.status === 'sold') {
+                    bookingSection.innerHTML = '<p style="color:#e74c3c;font-weight:bold;"><i class="fas fa-ban"></i> This property has been sold.</p>';
+                } else if (prop.status === 'rented') {
+                    bookingSection.innerHTML = '<p style="color:#9b59b6;font-weight:bold;"><i class="fas fa-ban"></i> This property is currently rented.</p>';
+                }
+
+                // Render reviews
+                renderReviews(prop.reviews, prop.avg_rating, prop.total_reviews);
+
+                document.getElementById('propertyModal').classList.add('active');
+            } catch (e) {
+                console.error('Error loading property:', e);
+            }
+        }
+
+        function closeLightbox() {
+            document.getElementById('propertyModal').classList.remove('active');
+        }
+
+        // Close on background click
+        document.getElementById('propertyModal').addEventListener('click', (e) => {
+            if (e.target.classList.contains('lightbox')) closeLightbox();
+        });
+
+        // Render reviews
+        function renderReviews(reviews, avgRating, totalReviews) {
+            document.getElementById('avgRating').textContent = avgRating || 0;
+            document.getElementById('totalReviews').textContent = totalReviews || 0;
+            document.getElementById('avgRatingStars').innerHTML = getStarRating(avgRating || 0);
+
+            const list = document.getElementById('reviewsList');
+            if (!reviews || reviews.length === 0) {
+                list.innerHTML = '<p style="color:#999;">No reviews yet.</p>';
+                return;
+            }
+
+            list.innerHTML = reviews.map(r => `
+                <div class="review-item">
+                    <div class="review-header">
+                        <span class="reviewer-name">${r.full_name}</span>
+                        <span class="review-date">${new Date(r.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <div class="review-rating">${getStarRating(r.rating)}</div>
+                    <p class="review-comment">${r.comment}</p>
+                </div>
+            `).join('');
+        }
+
+        function getStarRating(rating) {
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= rating) stars += '<i class="fas fa-star"></i>';
+                else if (i - 0.5 <= rating) stars += '<i class="fas fa-star-half-alt"></i>';
+                else stars += '<i class="far fa-star"></i>';
+            }
+            return stars;
+        }
+
+        // Toggle favorite
+        async function toggleFavorite(event, propertyId) {
+            event.stopPropagation();
+
+            if (!currentUser) {
+                showLoginPrompt();
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/favorites/add.php`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ property_id: propertyId })
+                });
+                const data = await res.json();
+
+                const btn = event.target.closest('.favorite-btn');
+                btn.classList.toggle('active');
+
+                if (data.action === 'added') {
+                    userFavorites.push(propertyId);
+                } else {
+                    userFavorites = userFavorites.filter(id => id !== propertyId);
+                }
+            } catch (e) {
+                console.error('Error toggling favorite:', e);
+            }
+        }
+
+        // Submit booking
+        async function submitBooking(e) {
+            e.preventDefault();
+
+            if (!currentUser) {
+                showLoginPrompt();
+                return;
+            }
+
+            const propertyId = document.getElementById('bookingPropertyId').value;
+            const date = document.getElementById('bookingDate').value;
+            const time = document.getElementById('bookingTime').value;
+
+            try {
+                const res = await fetch(`${API_BASE}/viewings/create.php`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ property_id: propertyId, viewing_date: date, viewing_time: time })
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    alert('Viewing booked successfully! We will confirm your appointment.');
+                    closeLightbox();
+                } else {
+                    alert(data.message || 'Failed to book viewing');
+                }
+            } catch (e) {
+                console.error('Booking error:', e);
+                alert('Failed to book viewing');
+            }
+        }
+
+        // Set minimum date for booking
+        function setMinDate() {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('bookingDate').min = tomorrow.toISOString().split('T')[0];
+        }
+
+        // Login prompt
+        function showLoginPrompt() {
+            document.getElementById('loginPrompt').classList.add('active');
+        }
+
+        function closeLoginPrompt() {
+            document.getElementById('loginPrompt').classList.remove('active');
+        }
+    </script>
+</body>
+
+</html>

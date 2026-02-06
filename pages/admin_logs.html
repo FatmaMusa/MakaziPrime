@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logs - MakaziPrime Admin</title>
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header"><i class="fas fa-building" style="margin-right: 10px;"></i> MakaziPrime</div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="admin.html"><i class="fas fa-th-large"></i> Dashboard</a></li>
+                <li><a href="admin_properties.html"><i class="fas fa-home"></i> Properties</a></li>
+                <li><a href="admin_bookings.html"><i class="fas fa-calendar-check"></i> Bookings</a></li>
+                <li><a href="admin_users.html"><i class="fas fa-users"></i> Users</a></li>
+                <li><a href="admin_logs.html" class="active"><i class="fas fa-clipboard-list"></i> Logs</a></li>
+            </ul>
+        </nav>
+        <div class="sidebar-user">
+            <div>Logged in as: <br><strong id="adminName">Loading...</strong></div>
+            <a href="#" onclick="logout()" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-header">
+            <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+            <h1 class="page-title">System Logs & Reports</h1>
+            <div class="header-actions">
+                <input type="date" id="filterDate" class="form-control"
+                    style="padding: 5px; width: 150px; display: inline-block;">
+                <button class="btn btn-primary btn-sm" onclick="filterLogs()">Filter</button>
+            </div>
+        </header>
+
+        <div class="content-wrapper">
+            <div class="data-table-container">
+                <table id="logsTable">
+                    <thead>
+                        <tr>
+                            <th>Log ID</th>
+                            <th>Date/Time</th>
+                            <th>Admin Name</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- JS renders -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script src="../assets/js/admin.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', loadLogs);
+
+        async function loadLogs() {
+            const date = document.getElementById('filterDate').value;
+            let url = 'logs/read.php';
+            if (date) {
+                url += `?date=${date}`;
+            }
+
+            const data = await fetchAPI(url);
+            const tbody = document.querySelector('#logsTable tbody');
+            tbody.innerHTML = '';
+
+            if (!data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4">No logs found.</td></tr>';
+                return;
+            }
+
+            data.forEach(log => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${log.log_id}</td>
+                    <td>${new Date(log.log_date).toLocaleString()}</td>
+                    <td>${log.admin_name}</td>
+                    <td>${log.action}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterLogs() {
+            loadLogs();
+        }
+    </script>
+</body>
+
+</html>

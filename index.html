@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="MakaziPrime - Premium real estate services in Tanzania. Find your dream property for sale or rent.">
+    <title>MakaziPrime - Premium Real Estate in Tanzania</title>
+    <link rel="stylesheet" href="assets/css/public.css">
+    <link rel="stylesheet" href="assets/css/landing.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <div id="header-placeholder" data-root=""></div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <span class="hero-badge">Premium Real Estate</span>
+            <h1 class="hero-title">Find Your Perfect <span class="highlight">Home</span></h1>
+            <p class="hero-subtitle">Discover premium properties for sale and rent across Tanzania. Your dream home is
+                just a click away.</p>
+
+            <!-- Search Box -->
+            <div class="hero-search">
+                <div class="search-tabs">
+                    <button class="search-tab active" data-type="all">All</button>
+                    <button class="search-tab" data-type="sale">Buy</button>
+                    <button class="search-tab" data-type="rent">Rent</button>
+                </div>
+                <div class="search-form">
+                    <div class="search-group">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <input type="text" id="searchLocation" placeholder="Enter location...">
+                    </div>
+                    <div class="search-group">
+                        <i class="fas fa-home"></i>
+                        <select id="searchType">
+                            <option value="">Property Type</option>
+                            <option value="1">Apartment</option>
+                            <option value="2">Villa</option>
+                            <option value="3">Office</option>
+                            <option value="4">Land</option>
+                        </select>
+                    </div>
+                    <div class="search-group">
+                        <i class="fas fa-bed"></i>
+                        <select id="searchBedrooms">
+                            <option value="">Bedrooms</option>
+                            <option value="1">1+</option>
+                            <option value="2">2+</option>
+                            <option value="3">3+</option>
+                            <option value="4">4+</option>
+                        </select>
+                    </div>
+                    <button class="search-btn" onclick="searchProperties()">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hero Stats -->
+        <div class="hero-stats">
+            <div class="stat-item">
+                <span class="stat-number" id="statProperties">0</span>
+                <span class="stat-label">Properties Listed</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="statClients">500+</span>
+                <span class="stat-label">Happy Clients</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">10+</span>
+                <span class="stat-label">Years Experience</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Properties -->
+    <section class="section featured-section">
+        <div class="container">
+            <div class="section-header-landing">
+                <div>
+                    <span class="section-tag">Discover</span>
+                    <h2 class="section-title-landing">Featured Properties</h2>
+                </div>
+                <a href="pages/properties.html" class="btn-outline">View All <i class="fas fa-arrow-right"></i></a>
+            </div>
+
+            <div class="property-grid" id="featuredGrid">
+                <!-- JS renders -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Choose Us -->
+    <section class="section why-section">
+        <div class="container">
+            <div class="section-center">
+                <span class="section-tag">Why MakaziPrime</span>
+                <h2 class="section-title-landing">Why Choose Us</h2>
+                <p class="section-subtitle">We provide exceptional real estate services with a commitment to excellence
+                </p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Trusted & Secure</h3>
+                    <p>All properties are verified and transactions are secure. Your trust is our priority.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-hand-holding-usd"></i>
+                    </div>
+                    <h3>Best Prices</h3>
+                    <p>Competitive pricing with no hidden fees. Get the best value for your investment.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h3>24/7 Support</h3>
+                    <p>Our dedicated team is always available to assist you with any inquiries.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </div>
+                    <h3>Prime Locations</h3>
+                    <p>Properties in the most desirable locations across Tanzania.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="section about-section" id="about">
+        <div class="container">
+            <div class="about-grid">
+                <div class="about-image">
+                    <img src="assets/images/about-building.jpg" alt="Modern Building"
+                        onerror="this.src='https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600'">
+                    <div class="about-badge">
+                        <span class="badge-number">10+</span>
+                        <span class="badge-text">Years of Excellence</span>
+                    </div>
+                </div>
+                <div class="about-content">
+                    <span class="section-tag">About Us</span>
+                    <h2 class="section-title-landing">Your Trusted Real Estate Partner</h2>
+                    <p class="about-text">MakaziPrime is a leading real estate company in Tanzania, dedicated to helping
+                        individuals and families find their perfect homes. With over 10 years of experience, we've built
+                        a reputation for excellence, integrity, and customer satisfaction.</p>
+                    <p class="about-text">Whether you're looking to buy, sell, or rent, our team of experienced
+                        professionals is here to guide you every step of the way.</p>
+
+                    <ul class="about-list">
+                        <li><i class="fas fa-check-circle"></i> Professional & experienced agents</li>
+                        <li><i class="fas fa-check-circle"></i> Wide selection of verified properties</li>
+                        <li><i class="fas fa-check-circle"></i> Transparent & honest dealings</li>
+                        <li><i class="fas fa-check-circle"></i> After-sale support & assistance</li>
+                    </ul>
+
+                    <a href="pages/properties.html" class="btn-primary">Explore Properties</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Property Types -->
+    <section class="section types-section">
+        <div class="container">
+            <div class="section-center">
+                <span class="section-tag">Categories</span>
+                <h2 class="section-title-landing">Browse by Property Type</h2>
+            </div>
+
+            <div class="types-grid">
+                <a href="pages/properties.html?type_id=1" class="type-card">
+                    <div class="type-icon"><i class="fas fa-building"></i></div>
+                    <h4>Apartments</h4>
+                    <span id="apartmentCount">0 Properties</span>
+                </a>
+                <a href="pages/properties.html?type_id=2" class="type-card">
+                    <div class="type-icon"><i class="fas fa-house-user"></i></div>
+                    <h4>Villas</h4>
+                    <span id="villaCount">0 Properties</span>
+                </a>
+                <a href="pages/properties.html?type_id=3" class="type-card">
+                    <div class="type-icon"><i class="fas fa-briefcase"></i></div>
+                    <h4>Offices</h4>
+                    <span id="officeCount">0 Properties</span>
+                </a>
+                <a href="pages/properties.html?type_id=4" class="type-card">
+                    <div class="type-icon"><i class="fas fa-mountain"></i></div>
+                    <h4>Land</h4>
+                    <span id="landCount">0 Properties</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Ready to Find Your Dream Home?</h2>
+                <p>Let us help you find the perfect property that matches your lifestyle and budget.</p>
+                <div class="cta-buttons">
+                    <a href="pages/properties.html" class="btn-white">Browse Properties</a>
+                    <a href="#contact" class="btn-outline-white">Contact Us</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="section contact-section" id="contact">
+        <div class="container">
+            <div class="contact-grid">
+                <div class="contact-info">
+                    <span class="section-tag">Get in Touch</span>
+                    <h2 class="section-title-landing">Contact Us</h2>
+                    <p>Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as
+                        possible.</p>
+
+                    <div class="contact-details">
+                        <div class="contact-item">
+                            <div class="contact-icon"><i class="fas fa-map-marker-alt"></i></div>
+                            <div>
+                                <h5>Address</h5>
+                                <p>Dar es Salaam, Tanzania</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-icon"><i class="fas fa-phone"></i></div>
+                            <div>
+                                <h5>Phone</h5>
+                                <p>+255 123 456 789</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-icon"><i class="fas fa-envelope"></i></div>
+                            <div>
+                                <h5>Email</h5>
+                                <p>info@makaziprime.co.tz</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-icon"><i class="fas fa-clock"></i></div>
+                            <div>
+                                <h5>Working Hours</h5>
+                                <p>Mon - Sat: 8:00 AM - 6:00 PM</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <form class="contact-form" id="contactForm" onsubmit="submitContact(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <input type="text" name="name" placeholder="Your Name" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" name="email" placeholder="Your Email" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" name="subject" placeholder="Subject">
+                    </div>
+                    <div class="form-group">
+                        <textarea name="message" rows="5" placeholder="Your Message" required></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary btn-full">
+                        <i class="fas fa-paper-plane"></i> Send Message
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <div id="footer-placeholder" data-root=""></div>
+
+
+    <script>
+        const API_BASE = 'api';
+        let listingType = 'all';
+
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadComponent('header-placeholder', 'components/header.html');
+            await loadComponent('footer-placeholder', 'components/footer.html');
+
+            // Session check is now handled by header.html script automatically
+            loadFeaturedProperties();
+            loadStats();
+            setupSearchTabs();
+        });
+
+        // Load HTML component and fix paths
+        async function loadComponent(elementId, path) {
+            try {
+                const el = document.getElementById(elementId);
+                const root = el.getAttribute('data-root') || '';
+                const res = await fetch(path);
+                let html = await res.text();
+
+                // Fix paths based on root
+                html = html.replace(/href="index\.html/g, `href="${root}index.html`);
+                html = html.replace(/href="properties\.html/g, `href="${root}pages/properties.html`);
+                html = html.replace(/href="favorites\.html/g, `href="${root}pages/favorites.html`);
+                html = html.replace(/href="login\.html/g, `href="${root}pages/login.html`);
+                html = html.replace(/href="portal\.html/g, `href="${root}pages/portal.html`);
+
+                el.innerHTML = html;
+
+                // Execute scripts in the loaded HTML
+                const scripts = el.querySelectorAll('script');
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                    newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                    oldScript.parentNode.replaceChild(newScript, oldScript);
+                });
+            } catch (e) {
+                console.error('Error loading component:', e);
+            }
+        }
+
+        // Load featured properties
+        async function loadFeaturedProperties() {
+            try {
+                const res = await fetch(`${API_BASE}/properties/read.php?limit=6`);
+                const properties = await res.json();
+                renderFeaturedProperties(properties.slice(0, 6));
+            } catch (e) {
+                console.error('Error loading properties:', e);
+            }
+        }
+
+        // Render featured properties
+        function renderFeaturedProperties(properties) {
+            const grid = document.getElementById('featuredGrid');
+
+            if (!properties || properties.length === 0) {
+                grid.innerHTML = '<p style="text-align:center;color:#999;grid-column:1/-1;">No properties available yet.</p>';
+                return;
+            }
+
+            grid.innerHTML = properties.map(prop => {
+                const isRental = prop.listing_type === 'rent';
+                const listingBadge = isRental
+                    ? '<span class="listing-badge rent">For Rent</span>'
+                    : '<span class="listing-badge sale">For Sale</span>';
+                const priceLabel = isRental
+                    ? `Tsh ${Number(prop.price).toLocaleString()}/${prop.rent_period || 'month'}`
+                    : `Tsh ${Number(prop.price).toLocaleString()}`;
+
+                return `
+                    <div class="property-card" onclick="window.location='pages/properties.html?view=${prop.property_id}'">
+                        <div class="property-image">
+                            <img src="${prop.image_url || 'assets/uploads/default.jpg'}" alt="${prop.title}">
+                            ${listingBadge}
+                            <span class="property-status status-${prop.status}">${prop.status}</span>
+                        </div>
+                        <div class="property-info">
+                            <span class="property-type">${prop.type_name}</span>
+                            <h3 class="property-title">${prop.title}</h3>
+                            <p class="property-location"><i class="fas fa-map-marker-alt"></i> ${prop.location}</p>
+                            <div class="property-features">
+                                <span class="feature"><i class="fas fa-bed"></i> ${prop.bedrooms} Beds</span>
+                                <span class="feature"><i class="fas fa-bath"></i> ${prop.bathrooms} Baths</span>
+                                <span class="feature"><i class="fas fa-vector-square"></i> ${prop.area_sqft} sqft</span>
+                            </div>
+                            <div class="property-footer">
+                                <span class="property-price">${priceLabel}</span>
+                                <button class="btn-view">View Details</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Load stats
+        async function loadStats() {
+            try {
+                const res = await fetch(`${API_BASE}/properties/read.php`);
+                const properties = await res.json();
+
+                document.getElementById('statProperties').textContent = properties.length || 0;
+
+                // Count by type
+                const apartments = properties.filter(p => p.type_id == 1).length;
+                const villas = properties.filter(p => p.type_id == 2).length;
+                const offices = properties.filter(p => p.type_id == 3).length;
+                const lands = properties.filter(p => p.type_id == 4).length;
+
+                document.getElementById('apartmentCount').textContent = `${apartments} Properties`;
+                document.getElementById('villaCount').textContent = `${villas} Properties`;
+                document.getElementById('officeCount').textContent = `${offices} Properties`;
+                document.getElementById('landCount').textContent = `${lands} Properties`;
+            } catch (e) {
+                console.error('Error loading stats:', e);
+            }
+        }
+
+        // Search tabs
+        function setupSearchTabs() {
+            document.querySelectorAll('.search-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.search-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    listingType = tab.dataset.type;
+                });
+            });
+        }
+
+        // Search properties
+        function searchProperties() {
+            try {
+                const location = document.getElementById('searchLocation').value;
+                const type = document.getElementById('searchType').value;
+                const bedrooms = document.getElementById('searchBedrooms').value;
+
+                let url = 'pages/properties.html?';
+                const params = [];
+
+                if (location) params.push(`location=${encodeURIComponent(location)}`);
+                if (type) params.push(`type_id=${type}`);
+                if (bedrooms) params.push(`bedrooms=${bedrooms}`);
+                if (listingType && listingType !== 'all') params.push(`listing_type=${listingType}`);
+
+                window.location.href = url + params.join('&');
+            } catch (e) {
+                console.error('Search error:', e);
+                alert('Search failed. Please try again.');
+            }
+        }
+
+        // Submit contact form
+        async function submitContact(e) {
+            e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form);
+
+            alert('Thank you for your message! We will get back to you soon.');
+            form.reset();
+        }
+    </script>
+</body>
+
+</html>

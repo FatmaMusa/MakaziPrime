@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Portal - MakaziPrime</title>
+    <link rel="stylesheet" href="../assets/css/public.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .portal-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 30px;
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+            min-height: 60vh;
+        }
+
+        /* Sidebar Styles */
+        .portal-sidebar {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+            height: fit-content;
+        }
+
+        .user-profile-summary {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            background: #eef2f7;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 2rem;
+            color: var(--primary-color);
+        }
+
+        .user-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .user-email {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .portal-nav {
+            list-style: none;
+            padding: 0;
+        }
+
+        .portal-nav li {
+            margin-bottom: 10px;
+        }
+
+        .portal-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 12px 15px;
+            background: none;
+            border: none;
+            border-radius: 8px;
+            color: #555;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+        }
+
+        .portal-btn:hover {
+            background: #f8f9fa;
+            color: var(--primary-color);
+        }
+
+        .portal-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-logout {
+            margin-top: 20px;
+            color: #e74c3c;
+        }
+
+        .btn-logout:hover {
+            background: #fff5f5;
+            color: #c0392b;
+        }
+
+        /* Main Content Styles */
+        .portal-content {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+        }
+
+        .tab-section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-section.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 0;
+        }
+
+        /* Viewings List */
+        .viewing-card {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+
+        .viewing-img {
+            width: 100px;
+            height: 100px;
+            border-radius: 6px;
+            object-fit: cover;
+        }
+
+        .viewing-details {
+            flex: 1;
+        }
+
+        .viewing-title {
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--primary-color);
+        }
+
+        .viewing-meta {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .viewing-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #ffeaa7;
+            color: #d35400;
+        }
+
+        .status-confirmed {
+            background: #c8f7dc;
+            color: #27ae60;
+        }
+
+        .status-cancelled {
+            background: #ffcccc;
+            color: #c0392b;
+        }
+
+        /* Dashboard Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--secondary-color);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Favorites Grid (Reused styles, minimal overrides) */
+        .portal-favorites-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .portal-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <div id="header-placeholder" data-root="../"></div>
+
+    <div class="portal-layout">
+        <!-- Sidebar -->
+        <aside class="portal-sidebar">
+            <div class="user-profile-summary">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <h3 class="user-name" id="userName">Loading...</h3>
+                <p class="user-email" id="userEmail">...</p>
+            </div>
+            <ul class="portal-nav">
+                <li><button class="portal-btn active" onclick="switchTab('dashboard')"><i class="fas fa-home"></i>
+                        Dashboard</button></li>
+                <li><button class="portal-btn" onclick="switchTab('viewings')"><i class="fas fa-calendar-alt"></i> My
+                        Viewings</button></li>
+                <li><button class="portal-btn" onclick="switchTab('favorites')"><i class="fas fa-heart"></i> My
+                        Favorites</button></li>
+                <li><button class="portal-btn btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i>
+                        Logout</button></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="portal-content">
+            <!-- Dashboard Tab -->
+            <div id="dashboard" class="tab-section active">
+                <div class="section-header">
+                    <h2 class="section-title">Dashboard Overview</h2>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-number" id="dashViewingsCount">0</span>
+                        <span class="stat-label">Upcoming Viewings</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="dashFavoritesCount">0</span>
+                        <span class="stat-label">Saved Properties</span>
+                    </div>
+                </div>
+                <h3>Recent Activity</h3>
+                <p style="color:#666;">Welcome to your property portal. Here you can track your viewing requests and
+                    manage your saved properties.</p>
+            </div>
+
+            <!-- Viewings Tab -->
+            <div id="viewings" class="tab-section">
+                <div class="section-header">
+                    <h2 class="section-title">My Viewings</h2>
+                </div>
+                <div id="viewingsList">
+                    <!-- JS Loaded -->
+                </div>
+            </div>
+
+            <!-- Favorites Tab -->
+            <div id="favorites" class="tab-section">
+                <div class="section-header">
+                    <h2 class="section-title">My Favorites</h2>
+                </div>
+                <div class="portal-favorites-grid" id="favoritesGrid">
+                    <!-- JS Loaded -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <div id="footer-placeholder" data-root="../"></div>
+
+    <script>
+        const API_BASE = '../api';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadComponent('header-placeholder', '../components/header.html');
+            await loadComponent('footer-placeholder', '../components/footer.html');
+            await checkSession();
+            loadViewings();
+            loadFavorites();
+        });
+
+        // Common Load Component
+        async function loadComponent(elementId, path) {
+            try {
+                const el = document.getElementById(elementId);
+                const root = el.getAttribute('data-root') || '';
+                const res = await fetch(path);
+                let html = await res.text();
+
+                // Fix paths
+                html = html.replace(/href="index\.html/g, `href="${root}index.html`);
+                html = html.replace(/href="properties\.html/g, `href="${root}pages/properties.html`);
+                html = html.replace(/href="favorites\.html/g, `href="${root}pages/favorites.html`);
+                html = html.replace(/href="login\.html/g, `href="${root}pages/login.html`);
+                html = html.replace(/href="portal\.html/g, `href="${root}pages/portal.html`);
+
+                el.innerHTML = html;
+
+                // Execute scripts in the loaded HTML
+                const scripts = el.querySelectorAll('script');
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                    newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                    oldScript.parentNode.replaceChild(newScript, oldScript);
+                });
+            } catch (e) {
+                console.error('Error loading component:', e);
+            }
+        }
+
+        async function checkSession() {
+            try {
+                const res = await fetch(`${API_BASE}/auth/check_session.php`);
+                const data = await res.json();
+
+                if (!data.loggedIn) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                document.getElementById('userName').textContent = data.user.name;
+                document.getElementById('userEmail').textContent = data.user.email;
+
+            } catch (e) {
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Tab Switching
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-section').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+
+            document.querySelectorAll('.portal-btn').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+        }
+
+        // Load Viewings
+        async function loadViewings() {
+            try {
+                const res = await fetch(`${API_BASE}/viewings/read.php`);
+                const viewings = await res.json();
+
+                document.getElementById('dashViewingsCount').textContent = viewings.filter(v => v.status !== 'cancelled').length;
+
+                const container = document.getElementById('viewingsList');
+                if (viewings.length === 0) {
+                    container.innerHTML = '<p class="no-data">You have no scheduled viewings.</p>';
+                    return;
+                }
+
+                container.innerHTML = viewings.map(v => `
+                    <div class="viewing-card">
+                        <img src="../${v.image_url || 'assets/uploads/default.jpg'}" class="viewing-img" alt="${v.title}">
+                        <div class="viewing-details">
+                            <h4 class="viewing-title">${v.title}</h4>
+                            <div class="viewing-meta">
+                                <i class="fas fa-calendar"></i> ${v.viewing_date} at ${v.viewing_time}
+                            </div>
+                            <div class="viewing-meta">
+                                <i class="fas fa-map-marker-alt"></i> ${v.location}
+                            </div>
+                            <span class="viewing-status status-${v.status}">${v.status.charAt(0).toUpperCase() + v.status.slice(1)}</span>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (e) {
+                console.error('Error loading viewings:', e);
+            }
+        }
+
+        // Load Favorites (Simplified Grid)
+        async function loadFavorites() {
+            try {
+                const res = await fetch(`${API_BASE}/favorites/read.php`);
+                const favorites = await res.json();
+
+                document.getElementById('dashFavoritesCount').textContent = favorites.length;
+
+                const container = document.getElementById('favoritesGrid');
+                if (favorites.length === 0) {
+                    container.innerHTML = '<p>No saved properties yet.</p>';
+                    return;
+                }
+
+                container.innerHTML = favorites.map(f => `
+                    <div class="property-card" style="margin-bottom:0;">
+                        <div class="property-image" style="height:150px;">
+                            <img src="../${f.image_url || 'assets/uploads/default.jpg'}" alt="${f.title}">
+                        </div>
+                        <div class="property-info" style="padding:15px;">
+                            <h5 style="margin:0 0 5px 0;font-size:1rem;">${f.title}</h5>
+                            <p style="margin:0 0 10px 0;color:#666;font-size:0.85rem;">${f.location}</p>
+                            <a href="properties.html?view=${f.property_id}" class="btn-view" style="width:100%;text-align:center;display:block;">View</a>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (e) {
+                console.error('Error loading favorites:', e);
+            }
+        }
+
+        async function logout() {
+            await fetch(`${API_BASE}/auth/logout.php`);
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+
+</html>

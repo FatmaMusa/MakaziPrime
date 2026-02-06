@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - MakaziPrime Admin</title>
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-building" style="margin-right: 10px;"></i> MakaziPrime
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="admin.html" class="active"><i class="fas fa-th-large"></i> Dashboard</a></li>
+                <li><a href="admin_properties.html"><i class="fas fa-home"></i> Properties</a></li>
+                <li><a href="admin_bookings.html"><i class="fas fa-calendar-check"></i> Bookings</a></li>
+                <li><a href="admin_users.html"><i class="fas fa-users"></i> Users</a></li>
+                <li><a href="admin_logs.html"><i class="fas fa-clipboard-list"></i> Logs</a></li>
+            </ul>
+        </nav>
+        <div class="sidebar-user">
+            <div>Logged in as: <br><strong id="adminName">Loading...</strong></div>
+            <a href="#" onclick="logout()" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="top-header">
+            <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+            <h1 class="page-title">Dashboard Overview</h1>
+            <div class="header-actions">
+                <a href="admin_properties.html" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> <span>Add
+                        Property</span></a>
+            </div>
+        </header>
+
+        <div class="content-wrapper">
+
+            <!-- Key Metrics Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-title">Total Active Properties</div>
+                    <div class="stat-value" id="activeProps">0</div>
+                    <div class="stat-desc"><span id="soldProps">0</span> Sold Properties</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Pending Bookings</div>
+                    <div class="stat-value" id="pendingBookings">0</div>
+                    <div class="stat-desc">Requires Attention</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Total Revenue</div>
+                    <div class="stat-value" id="totalRevenue">Tsh 0</div>
+                    <div class="stat-desc">From Reservation Fees</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">System Status</div>
+                    <div class="stat-value" style="color: var(--secondary-color); font-size: 1.5rem;">Online</div>
+                    <div class="stat-desc">Database Connected</div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="data-table-container">
+                <div class="table-header">
+                    <h2 class="table-title">Recent Booking Activities</h2>
+                    <a href="admin_bookings.html" class="btn btn-primary btn-sm">View All</a>
+                </div>
+                <table id="activityTable">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>User</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="3">Loading data...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Analytics Section -->
+            <div class="analytics-section">
+                <h2 class="section-title"><i class="fas fa-chart-bar"></i> Analytics Overview</h2>
+
+                <div class="charts-grid">
+                    <!-- Monthly Bookings Chart -->
+                    <div class="chart-card">
+                        <h3 class="chart-title">Monthly Bookings</h3>
+                        <div class="bar-chart" id="bookingsChart">
+                            <!-- JS renders bars -->
+                        </div>
+                        <div class="chart-legend" id="bookingsLegend"></div>
+                    </div>
+
+                    <!-- Property Type Distribution -->
+                    <div class="chart-card">
+                        <h3 class="chart-title">Property Types</h3>
+                        <div class="horizontal-bar-chart" id="typeChart">
+                            <!-- JS renders -->
+                        </div>
+                    </div>
+
+                    <!-- Property Status -->
+                    <div class="chart-card">
+                        <h3 class="chart-title">Property Status</h3>
+                        <div class="status-chart" id="statusChart">
+                            <!-- JS renders -->
+                        </div>
+                    </div>
+
+                    <!-- Viewing Requests -->
+                    <div class="chart-card">
+                        <h3 class="chart-title">Viewing Requests</h3>
+                        <div class="status-chart" id="viewingsChart">
+                            <!-- JS renders -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="../assets/js/admin.js"></script>
+    <script>
+        // Load Dashboard Data
+        document.addEventListener('DOMContentLoaded', async () => {
+            const data = await fetchAPI('dashboard/stats.php');
+            if (data) {
+                // Update Cards
+                document.getElementById('activeProps').textContent = data.properties.active;
+                document.getElementById('soldProps').textContent = data.properties.sold;
+                document.getElementById('pendingBookings').textContent = data.pending_bookings;
+                document.getElementById('totalRevenue').textContent = 'Tsh ' + new Intl.NumberFormat().format(data.revenue);
+
+                // Update Activity Table
+                const tableBody = document.querySelector('#activityTable tbody');
+                tableBody.innerHTML = '';
+
+                if (data.recent_activity.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="3">No recent activity.</td></tr>';
+                } else {
+                    data.recent_activity.forEach(row => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${new Date(row.booking_date).toLocaleDateString()}</td>
+                            <td>${row.full_name}</td>
+                            <td>${getStatusBadge(row.status)}</td>
+                        `;
+                        tableBody.appendChild(tr);
+                    });
+                }
+            }
+
+            // Load Analytics
+            loadAnalytics();
+        });
+
+        async function loadAnalytics() {
+            const analytics = await fetchAPI('dashboard/analytics.php');
+            if (!analytics) return;
+
+            // Render Monthly Bookings Bar Chart
+            renderBarChart(analytics.monthly_bookings);
+
+            // Render Property Type Distribution
+            renderTypeChart(analytics.type_distribution);
+
+            // Render Property Status
+            renderStatusChart(analytics.status_breakdown, 'statusChart');
+
+            // Render Viewings Stats
+            renderStatusChart(analytics.viewings_stats, 'viewingsChart');
+        }
+
+        function renderBarChart(data) {
+            const container = document.getElementById('bookingsChart');
+            const legend = document.getElementById('bookingsLegend');
+
+            if (!data || data.length === 0) {
+                container.innerHTML = '<p style="color:#999;text-align:center;padding:30px;">No data available</p>';
+                return;
+            }
+
+            const maxBookings = Math.max(...data.map(d => parseInt(d.total_bookings) || 1));
+
+            container.innerHTML = data.map(item => {
+                const height = Math.max(10, (parseInt(item.total_bookings) / maxBookings) * 150);
+                return `
+                    <div class="bar-item">
+                        <div class="bar" style="height: ${height}px;" title="${item.total_bookings} bookings">
+                            <span class="bar-value">${item.total_bookings}</span>
+                        </div>
+                        <span class="bar-label">${item.month_label ? item.month_label.split(' ')[0] : 'N/A'}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderTypeChart(data) {
+            const container = document.getElementById('typeChart');
+
+            if (!data || data.length === 0) {
+                container.innerHTML = '<p style="color:#999;text-align:center;padding:30px;">No data available</p>';
+                return;
+            }
+
+            const total = data.reduce((sum, d) => sum + parseInt(d.count), 0);
+            const colors = ['#27ae60', '#3498db', '#f39c12', '#9b59b6', '#e74c3c'];
+
+            container.innerHTML = data.map((item, i) => {
+                const percentage = total > 0 ? ((parseInt(item.count) / total) * 100).toFixed(1) : 0;
+                return `
+                    <div class="h-bar-item">
+                        <div class="h-bar-info">
+                            <span class="h-bar-name">${item.type_name}</span>
+                            <span class="h-bar-count">${item.count}</span>
+                        </div>
+                        <div class="h-bar-track">
+                            <div class="h-bar-fill" style="width: ${percentage}%; background: ${colors[i % colors.length]};"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderStatusChart(data, containerId) {
+            const container = document.getElementById(containerId);
+
+            if (!data || data.length === 0) {
+                container.innerHTML = '<p style="color:#999;text-align:center;padding:30px;">No data available</p>';
+                return;
+            }
+
+            const statusColors = {
+                'available': '#27ae60',
+                'sold': '#e74c3c',
+                'reserved': '#f39c12',
+                'pending': '#f39c12',
+                'confirmed': '#27ae60',
+                'cancelled': '#95a5a6',
+                'approved': '#27ae60',
+                'rejected': '#e74c3c'
+            };
+
+            container.innerHTML = data.map(item => {
+                const color = statusColors[item.status] || '#3498db';
+                return `
+                    <div class="status-item">
+                        <div class="status-dot" style="background: ${color};"></div>
+                        <span class="status-name">${item.status.charAt(0).toUpperCase() + item.status.slice(1)}</span>
+                        <span class="status-count">${item.count}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+    </script>
+</body>
+
+</html>

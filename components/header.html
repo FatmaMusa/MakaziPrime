@@ -1,0 +1,47 @@
+<!-- Header -->
+<header class="site-header">
+    <div class="header-container">
+        <a href="index.html" class="logo">
+            <i class="fas fa-building"></i> MakaziPrime
+        </a>
+        <button class="mobile-toggle" onclick="toggleMobileNav()"><i class="fas fa-bars"></i></button>
+        <nav class="nav-links" id="navLinks">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="properties.html" class="nav-link">Properties</a>
+            <a href="index.html#about" class="nav-link">About</a>
+            <a href="index.html#contact" class="nav-link">Contact</a>
+            <a href="favorites.html" class="nav-link"><i class="fas fa-heart"></i> Favorites</a>
+            <a href="login.html" class="btn-login" id="authLink"><i class="fas fa-sign-in-alt"></i> Login</a>
+        </nav>
+    </div>
+</header>
+
+<script>
+    function toggleMobileNav() {
+        document.getElementById('navLinks').classList.toggle('active');
+    }
+
+    // Centralized Session Check for Header
+    (async function checkHeaderSession() {
+        try {
+            // Determine path depth
+            const isSubPage = window.location.pathname.includes('/pages/');
+            const apiPath = isSubPage ? '../api' : 'api';
+            const portalPath = isSubPage ? 'portal.html' : 'pages/portal.html';
+
+            const res = await fetch(`${apiPath}/auth/check_session.php`);
+            const data = await res.json();
+
+            if (data.loggedIn) {
+                const authLink = document.getElementById('authLink');
+                if (authLink) {
+                    authLink.innerHTML = `<i class="fas fa-user-circle"></i> My Portal`;
+                    authLink.href = portalPath;
+                    authLink.classList.add('active');
+                }
+            }
+        } catch (e) {
+            // Silent fail - keep default "Login" button
+        }
+    })();
+</script>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookings - MakaziPrime Admin</title>
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header"><i class="fas fa-building" style="margin-right: 10px;"></i> MakaziPrime</div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="admin.html"><i class="fas fa-th-large"></i> Dashboard</a></li>
+                <li><a href="admin_properties.html"><i class="fas fa-home"></i> Properties</a></li>
+                <li><a href="admin_bookings.html" class="active"><i class="fas fa-calendar-check"></i> Bookings</a></li>
+                <li><a href="admin_users.html"><i class="fas fa-users"></i> Users</a></li>
+                <li><a href="admin_logs.html"><i class="fas fa-clipboard-list"></i> Logs</a></li>
+            </ul>
+        </nav>
+        <div class="sidebar-user">
+            <div>Logged in as: <br><strong id="adminName">Loading...</strong></div>
+            <a href="#" onclick="logout()" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-header">
+            <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+            <h1 class="page-title">Booking & Inquiry Manager</h1>
+            <div></div>
+        </header>
+
+        <div class="content-wrapper">
+            <div class="data-table-container">
+                <table id="bookingsTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Date</th>
+                            <th>User (Buyer)</th>
+                            <th>Property Interested</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- JS renders -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script src="../assets/js/admin.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', loadBookings);
+
+        async function loadBookings() {
+            const data = await fetchAPI('bookings/read_admin.php');
+            const tbody = document.querySelector('#bookingsTable tbody');
+            tbody.innerHTML = '';
+
+            if (!data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6">No bookings found.</td></tr>';
+                return;
+            }
+
+            data.forEach(booking => {
+                const tr = document.createElement('tr');
+                let actions = '-';
+                // Only show actions if pending
+                if (booking.status === 'pending') {
+                    actions = `
+                        <button class="btn btn-success btn-sm" onclick="updateStatus(${booking.booking_id}, 'approved')"><i class="fas fa-check"></i> Approve</button>
+                        <button class="btn btn-danger btn-sm" onclick="updateStatus(${booking.booking_id}, 'rejected')"><i class="fas fa-times"></i> Reject</button>
+                    `;
+                }
+
+                const contactInfo = `
+                    <div>${booking.user_name}</div>
+                    <div style="font-size:0.8rem; color:#666;">
+                        <a href="mailto:${booking.user_email}">${booking.user_email}</a>
+                    </div>
+                `;
+
+                tr.innerHTML = `
+                    <td>#${booking.booking_id}</td>
+                    <td>${new Date(booking.booking_date).toLocaleDateString()}</td>
+                    <td>${contactInfo}</td>
+                    <td>${booking.property_title || 'N/A'} <br><small>${booking.location || ''}</small></td>
+                    <td>${getStatusBadge(booking.status)}</td>
+                    <td>${actions}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function updateStatus(id, newStatus) {
+            showConfirmModal(`Mark booking #${id} as ${newStatus}?`, async () => {
+                const res = await fetchAPI('bookings/update_status.php', 'POST', { booking_id: id, status: newStatus });
+                if (res.message) {
+                    alert(res.message);
+                    loadBookings();
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>
