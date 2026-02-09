@@ -1,7 +1,7 @@
 # MakaziPrime - Real Estate Management System
 
 **Project Name:** MakaziPrime Real Estate System  
-**Student Requirement:** Native PHP, Vanilla JavaScript, MySQL (No Frameworks)  
+** Requirement:** Native PHP, Vanilla JavaScript, MySQL
 **Database Norm:** 3NF (Third Normal Form)
 
 ---
@@ -153,41 +153,7 @@ File: /config/db.php
 
 Use PDO (PHP Data Objects).
 
-Strict Rule: Do not use mysqli_connect.
 
-Wrap connection logic in a class or function to be included in API files.
-
-Phase B: Admin & Property Management
-File: /api/properties/create.php
-
-POST Request Only: Ensure $_SERVER['REQUEST_METHOD'] === 'POST'.
-
-File Upload:
-
-Verify $_FILES['image'].
-
-Validate file type (jpg/png/webp only).
-
-Move file to /assets/uploads/.
-
-Database Insert:
-
-Use Prepared Statements: INSERT INTO properties (...) VALUES (?, ?, ?).
-
-Phase C: Frontend & Fetch API
-File: /assets/js/main.js
-
-Do NOT use jQuery.
-
-Use fetch() to call backend APIs.
-
-JavaScript
-// Example: Load Properties
-async function loadProperties() {
-    const response = await fetch('api/properties/read.php');
-    const properties = await response.json();
-    renderGrid(properties); // Function to update DOM
-}
 
 
 5. Security Checklist (For Project Report)
