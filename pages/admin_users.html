@@ -70,11 +70,9 @@
                 let roleBadge = user.role === 'admin' ? 'badge-danger' : 'badge-info';
 
                 let actions = '';
-                if (user.role === 'buyer') {
-                    actions += `<button class="btn btn-primary btn-sm" onclick="changeRole(${user.user_id}, 'admin')">Promote to Admin</button> `;
-                } else {
-                    actions += `<button class="btn btn-warning btn-sm" onclick="changeRole(${user.user_id}, 'buyer')">Demote to Buyer</button> `;
-                }
+                // Don't show delete button for the current user to prevent accidental self-deletion
+                // Note: The backend also prevents this.
+                actions = `<button class="btn btn-outline-danger btn-sm" onclick="deleteUser(${user.user_id})"><i class="fas fa-trash"></i> Delete User</button>`;
 
                 tr.innerHTML = `
                     <td>${user.user_id}</td>
@@ -88,9 +86,9 @@
             });
         }
 
-        async function changeRole(id, newRole) {
-            showConfirmModal(`Are you sure you want to change user #${id} role to ${newRole}?`, async () => {
-                const res = await fetchAPI('users/update_status.php', 'POST', { user_id: id, role: newRole });
+        async function deleteUser(id) {
+            showConfirmModal(`ARE YOU SURE? Permanently deleting user #${id} will also remove all their bookings, viewings, and reviews. This cannot be undone.`, async () => {
+                const res = await fetchAPI('users/delete.php', 'POST', { user_id: id });
                 if (res.message) {
                     alert(res.message);
                     loadUsers();
