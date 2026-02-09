@@ -109,10 +109,18 @@
 
                 <p class="lightbox-desc" id="modalDescription"></p>
 
-                <!-- Booking Section -->
-                <div class="booking-section" id="bookingSection">
+                <!-- Interaction Tabs -->
+                <div class="lightbox-tabs">
+                    <button class="tab-btn active" onclick="switchModalTab('viewing')"><i
+                            class="fas fa-calendar-alt"></i> Schedule Viewing</button>
+                    <button class="tab-btn" onclick="switchModalTab('booking')"><i class="fas fa-key"></i> Reserve
+                        Property</button>
+                </div>
+
+                <!-- Viewing Section (Default) -->
+                <div class="modal-tab-content active" id="viewingSection">
                     <h4 class="booking-title"><i class="fas fa-calendar-alt"></i> Schedule a Viewing</h4>
-                    <form class="booking-form" id="bookingForm" onsubmit="submitBooking(event)">
+                    <form class="booking-form" id="viewingForm" onsubmit="submitViewing(event)">
                         <input type="hidden" id="bookingPropertyId">
                         <div class="form-group">
                             <label>Preferred Date</label>
@@ -130,8 +138,25 @@
                                 <option value="16:00">4:00 PM</option>
                             </select>
                         </div>
-                        <button type="submit" class="btn-book" id="btnBook">
+                        <button type="submit" class="btn-book" id="btnBookViewing">
                             <i class="fas fa-calendar-check"></i> Book Viewing
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Reservation Section -->
+                <div class="modal-tab-content" id="bookingSection">
+                    <h4 class="booking-title"><i class="fas fa-key"></i> Official Property Reservation</h4>
+                    <div class="reservation-info">
+                        <p>Formal reservation requires a non-refundable commitment fee.</p>
+                        <div class="fee-badge">Reservation Fee: <strong>Tsh 50,000</strong></div>
+                        <p style="font-size: 0.85rem; color: #666; margin-bottom: 15px;">By clicking below, you express
+                            your serious intent to acquire this property. Our agents will contact you for payment
+                            verification.</p>
+                    </div>
+                    <form onsubmit="submitReservation(event)">
+                        <button type="submit" class="btn-book" style="background: var(--secondary-color);">
+                            <i class="fas fa-lock"></i> Reserve This Property Now
                         </button>
                     </form>
                 </div>
@@ -420,24 +445,48 @@
                 document.getElementById('modalDescription').textContent = prop.description || 'No description available.';
                 document.getElementById('bookingPropertyId').value = prop.property_id;
 
+                // Reset tabs
+                switchModalTab('viewing');
+
                 // Differentiate booking UI
-                const bookingTitle = document.querySelector('.booking-title');
-                const btnBook = document.getElementById('btnBook');
+                const viewingTitle = document.querySelector('#viewingSection .booking-title');
+                const btnBookViewing = document.getElementById('btnBookViewing');
 
                 if (prop.listing_type === 'rent') {
-                    bookingTitle.innerHTML = '<i class="fas fa-calendar-alt"></i> Schedule a Rental Viewing';
-                    btnBook.innerHTML = '<i class="fas fa-calendar-check"></i> Book Rental Viewing';
+                    viewingTitle.innerHTML = '<i class="fas fa-calendar-alt"></i> Schedule a Rental Viewing';
+                    btnBookViewing.innerHTML = '<i class="fas fa-calendar-check"></i> Book Rental Viewing';
                 } else {
-                    bookingTitle.innerHTML = '<i class="fas fa-calendar-alt"></i> Schedule a Home Viewing';
-                    btnBook.innerHTML = '<i class="fas fa-calendar-check"></i> Book Property Viewing';
+                    viewingTitle.innerHTML = '<i class="fas fa-calendar-alt"></i> Schedule a Home Viewing';
+                    btnBookViewing.innerHTML = '<i class="fas fa-calendar-check"></i> Book Property Viewing';
                 }
 
                 // Handle sold/rented properties
+                const viewingSection = document.getElementById('viewingSection');
                 const bookingSection = document.getElementById('bookingSection');
-                if (prop.status === 'sold') {
-                    bookingSection.innerHTML = '<p style="color:#e74c3c;font-weight:bold;"><i class="fas fa-ban"></i> This property has been sold.</p>';
-                } else if (prop.status === 'rented') {
-                    bookingSection.innerHTML = '<p style="color:#9b59b6;font-weight:bold;"><i class="fas fa-ban"></i> This property is currently rented.</p>';
+                const tabsBar = document.querySelector('.lightbox-tabs');
+
+                if (prop.status === 'sold' || prop.status === 'reserved' || prop.status === 'rented') {
+                    tabsBar.style.display = 'none';
+                    viewingSection.style.display = 'none';
+                    bookingSection.innerHTML = `<p style="color:#e74c3c;font-weight:bold;padding:20px;text-align:center;background:#fff5f5;border-radius:8px;"><i class="fas fa-ban"></i> This property is currently ${prop.status}.</p>`;
+                    bookingSection.classList.add('active');
+                } else {
+                    tabsBar.style.display = 'flex';
+                    viewingSection.style.display = 'block';
+                    // Restore original HTML for bookingSection if it was changed
+                    bookingSection.innerHTML = `
+                        <h4 class="booking-title"><i class="fas fa-key"></i> Official Property Reservation</h4>
+                        <div class="reservation-info">
+                            <p>Formal reservation requires a non-refundable commitment fee.</p>
+                            <div class="fee-badge">Reservation Fee: <strong>Tsh 50,000</strong></div>
+                            <p style="font-size: 0.85rem; color: #666; margin-bottom: 15px;">By clicking below, you express your serious intent to acquire this property. Our agents will contact you for payment verification.</p>
+                        </div>
+                        <form onsubmit="submitReservation(event)">
+                            <button type="submit" class="btn-book" style="background: var(--secondary-color);">
+                                <i class="fas fa-lock"></i> Reserve This Property Now
+                            </button>
+                        </form>
+                    `;
                 }
 
                 // Render reviews
@@ -522,8 +571,22 @@
             }
         }
 
-        // Submit booking
-        async function submitBooking(e) {
+        // Modal Tab Switching
+        function switchModalTab(tab) {
+            document.querySelectorAll('.modal-tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+            if (tab === 'viewing') {
+                document.getElementById('viewingSection').classList.add('active');
+                document.querySelector('.tab-btn:first-child').classList.add('active');
+            } else {
+                document.getElementById('bookingSection').classList.add('active');
+                document.querySelector('.tab-btn:last-child').classList.add('active');
+            }
+        }
+
+        // Submit viewing (Renamed from submitBooking)
+        async function submitViewing(e) {
             e.preventDefault();
 
             if (!currentUser) {
@@ -552,6 +615,41 @@
             } catch (e) {
                 console.error('Booking error:', e);
                 alert('Failed to book viewing');
+            }
+        }
+
+        // Submit Reservation
+        async function submitReservation(e) {
+            e.preventDefault();
+
+            if (!currentUser) {
+                showLoginPrompt();
+                return;
+            }
+
+            const propertyId = document.getElementById('bookingPropertyId').value;
+
+            if (!confirm('Are you sure you want to reserve this property? A reservation fee of Tsh 50,000 will be required.')) return;
+
+            try {
+                const res = await fetch(`${API_BASE}/bookings/create.php`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ property_id: propertyId })
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    alert(data.message);
+                    closeLightbox();
+                    // Optionally redirect to portal
+                    window.location.href = 'portal.html';
+                } else {
+                    alert(data.message || 'Failed to reserve property');
+                }
+            } catch (e) {
+                console.error('Reservation error:', e);
+                alert('Failed to reserve property');
             }
         }
 

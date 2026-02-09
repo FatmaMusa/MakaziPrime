@@ -312,6 +312,17 @@ tr:hover {
     font-size: 0.8rem;
 }
 
+.btn-outline-danger {
+    background-color: transparent;
+    color: var(--danger-color);
+    border: 1px solid var(--danger-color);
+}
+
+.btn-outline-danger:hover {
+    background-color: var(--danger-color);
+    color: var(--white);
+}
+
 /* ============ STATUS BADGES ============ */
 .badge {
     padding: 4px 10px;

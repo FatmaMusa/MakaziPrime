@@ -256,6 +256,8 @@
                         Dashboard</button></li>
                 <li><button class="portal-btn" onclick="switchTab('viewings')"><i class="fas fa-calendar-alt"></i> My
                         Viewings</button></li>
+                <li><button class="portal-btn" onclick="switchTab('bookings')"><i class="fas fa-key"></i> My
+                        Reservations</button></li>
                 <li><button class="portal-btn" onclick="switchTab('favorites')"><i class="fas fa-heart"></i> My
                         Favorites</button></li>
                 <li><button class="portal-btn btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i>
@@ -276,6 +278,10 @@
                         <span class="stat-label">Upcoming Viewings</span>
                     </div>
                     <div class="stat-card">
+                        <span class="stat-number" id="dashBookingsCount">0</span>
+                        <span class="stat-label">My Reservations</span>
+                    </div>
+                    <div class="stat-card">
                         <span class="stat-number" id="dashFavoritesCount">0</span>
                         <span class="stat-label">Saved Properties</span>
                     </div>
@@ -291,6 +297,16 @@
                     <h2 class="section-title">My Viewings</h2>
                 </div>
                 <div id="viewingsList">
+                    <!-- JS Loaded -->
+                </div>
+            </div>
+
+            <!-- Bookings Tab -->
+            <div id="bookings" class="tab-section">
+                <div class="section-header">
+                    <h2 class="section-title">My Reservations</h2>
+                </div>
+                <div id="bookingsList">
                     <!-- JS Loaded -->
                 </div>
             </div>
@@ -319,6 +335,7 @@
             await loadComponent('footer-placeholder', '../components/footer.html');
             await checkSession();
             loadViewings();
+            loadBookings();
             loadFavorites();
         });
 
@@ -411,6 +428,46 @@
 
             } catch (e) {
                 console.error('Error loading viewings:', e);
+            }
+        }
+
+        // Load Bookings
+        async function loadBookings() {
+            try {
+                const res = await fetch(`${API_BASE}/bookings/read.php`);
+                const bookings = await res.json();
+
+                document.getElementById('dashBookingsCount').textContent = bookings.length;
+
+                const container = document.getElementById('bookingsList');
+                if (bookings.length === 0) {
+                    container.innerHTML = '<p class="no-data">You have no property reservations.</p>';
+                    return;
+                }
+
+                container.innerHTML = bookings.map(b => `
+                    <div class="viewing-card">
+                        <img src="../${b.image_url || 'assets/uploads/default.jpg'}" class="viewing-img" alt="${b.property_title}">
+                        <div class="viewing-details">
+                            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                                <h4 class="viewing-title">${b.property_title}</h4>
+                                <span class="viewing-status status-${b.status}">${b.status.toUpperCase()}</span>
+                            </div>
+                            <div class="viewing-meta">
+                                <i class="fas fa-map-marker-alt"></i> ${b.location}
+                            </div>
+                            <div class="viewing-meta">
+                                <i class="fas fa-calendar-check"></i> Reserved on: ${new Date(b.booking_date).toLocaleDateString()}
+                            </div>
+                            <div class="viewing-meta">
+                                <i class="fas fa-receipt"></i> Reservation Fee: <strong>Tsh ${Number(b.total_fee).toLocaleString()}</strong>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (e) {
+                console.error('Error loading bookings:', e);
             }
         }
 

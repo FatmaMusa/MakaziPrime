@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Viewing Appointments - MakaziPrime Admin</title>
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header"><i class="fas fa-building" style="margin-right: 10px;"></i> MakaziPrime</div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="admin.html"><i class="fas fa-th-large"></i> Dashboard</a></li>
+                <li><a href="admin_properties.html"><i class="fas fa-home"></i> Properties</a></li>
+                <li><a href="admin_bookings.html"><i class="fas fa-calendar-check"></i> Bookings</a></li>
+                <li><a href="admin_viewings.html" class="active"><i class="fas fa-calendar-alt"></i> Viewings</a></li>
+                <li><a href="admin_users.html"><i class="fas fa-users"></i> Users</a></li>
+                <li><a href="admin_logs.html"><i class="fas fa-clipboard-list"></i> Logs</a></li>
+            </ul>
+        </nav>
+        <div class="sidebar-user">
+            <div>Logged in as: <br><strong id="adminName">Loading...</strong></div>
+            <a href="#" onclick="logout()" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-header">
+            <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+            <h1 class="page-title">Viewing Appointments</h1>
+            <div></div>
+        </header>
+
+        <div class="content-wrapper">
+            <div class="data-table-container">
+                <table id="viewingsTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Property</th>
+                            <th>Customer</th>
+                            <th>Viewing Date/Time</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- JS renders -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script src="../assets/js/admin.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', loadViewings);
+
+        async function loadViewings() {
+            const data = await fetchAPI('viewings/read_admin.php');
+            const tbody = document.querySelector('#viewingsTable tbody');
+            tbody.innerHTML = '';
+
+            if (!data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px;">No viewing appointments found.</td></tr>';
+                return;
+            }
+
+            data.forEach(vs => {
+                const tr = document.createElement('tr');
+                let actions = '-';
+
+                if (vs.status === 'pending') {
+                    actions = `
+                        <button class="btn btn-success btn-sm" onclick="updateViewingStatus(${vs.slot_id}, 'confirmed')"><i class="fas fa-check"></i> Confirm</button>
+                        <button class="btn btn-danger btn-sm" onclick="updateViewingStatus(${vs.slot_id}, 'cancelled')"><i class="fas fa-times"></i> Cancel</button>
+                        <button class="btn btn-outline-danger btn-sm" onclick="deleteViewing(${vs.slot_id})"><i class="fas fa-trash"></i> Delete</button>
+                    `;
+                } else {
+                    actions = `<button class="btn btn-outline-danger btn-sm" onclick="deleteViewing(${vs.slot_id})"><i class="fas fa-trash"></i> Delete</button>`;
+                }
+
+                const customerInfo = `
+                    <div>${vs.user_name}</div>
+                    <div style="font-size:0.8rem; color:#666;">
+                        <a href="mailto:${vs.user_email}">${vs.user_email}</a>
+                    </div>
+                `;
+
+                tr.innerHTML = `
+                    <td>#${vs.slot_id}</td>
+                    <td>
+                        <strong>${vs.property_title}</strong><br>
+                        <small>${vs.location}</small>
+                    </td>
+                    <td>${customerInfo}</td>
+                    <td>
+                        <i class="fas fa-calendar-day"></i> ${new Date(vs.viewing_date).toLocaleDateString()}<br>
+                        <i class="fas fa-clock"></i> ${vs.viewing_time}
+                    </td>
+                    <td>${getStatusBadge(vs.status)}</td>
+                    <td>${actions}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function updateViewingStatus(id, newStatus) {
+            showConfirmModal(`Mark viewing #${id} as ${newStatus}?`, async () => {
+                const res = await fetchAPI('viewings/update_status.php', 'POST', { slot_id: id, status: newStatus });
+                if (res.message) {
+                    alert(res.message);
+                    loadViewings();
+                }
+            });
+        }
+
+        async function deleteViewing(id) {
+            showConfirmModal(`Permanently delete viewing appointment #${id}?`, async () => {
+                const res = await fetchAPI('viewings/delete.php', 'POST', { slot_id: id });
+                if (res.message) {
+                    alert(res.message);
+                    loadViewings();
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

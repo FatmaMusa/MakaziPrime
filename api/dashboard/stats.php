@@ -41,7 +41,14 @@ $stmt->execute();
 $revenue = $stmt->fetch(PDO::FETCH_ASSOC);
 $stats['revenue'] = $revenue['revenue'] ? $revenue['revenue'] : 0;
 
-// 4. Recent Activity (Last 5 Bookings or New Users)
+// 4. Pending Viewings
+$query_viewings = "SELECT COUNT(*) as pending FROM viewing_slots WHERE status = 'pending'";
+$stmt = $db->prepare($query_viewings);
+$stmt->execute();
+$viewings_count = $stmt->fetch(PDO::FETCH_ASSOC);
+$stats['pending_viewings'] = $viewings_count['pending'];
+
+// 5. Recent Activity (Last 5 Bookings or New Users)
 // Let's just pull last 5 bookings for now as 'activity'
 $query_activity = "SELECT b.booking_id, u.full_name, b.booking_date, b.status 
                    FROM bookings b 

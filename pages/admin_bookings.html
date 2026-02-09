@@ -17,6 +17,7 @@
                 <li><a href="admin.html"><i class="fas fa-th-large"></i> Dashboard</a></li>
                 <li><a href="admin_properties.html"><i class="fas fa-home"></i> Properties</a></li>
                 <li><a href="admin_bookings.html" class="active"><i class="fas fa-calendar-check"></i> Bookings</a></li>
+                <li><a href="admin_viewings.html"><i class="fas fa-calendar-alt"></i> Viewings</a></li>
                 <li><a href="admin_users.html"><i class="fas fa-users"></i> Users</a></li>
                 <li><a href="admin_logs.html"><i class="fas fa-clipboard-list"></i> Logs</a></li>
             </ul>
@@ -77,7 +78,10 @@
                     actions = `
                         <button class="btn btn-success btn-sm" onclick="updateStatus(${booking.booking_id}, 'approved')"><i class="fas fa-check"></i> Approve</button>
                         <button class="btn btn-danger btn-sm" onclick="updateStatus(${booking.booking_id}, 'rejected')"><i class="fas fa-times"></i> Reject</button>
+                        <button class="btn btn-outline-danger btn-sm" onclick="deleteBooking(${booking.booking_id})"><i class="fas fa-trash"></i> Delete</button>
                     `;
+                } else {
+                    actions = `<button class="btn btn-outline-danger btn-sm" onclick="deleteBooking(${booking.booking_id})"><i class="fas fa-trash"></i> Delete</button>`;
                 }
 
                 const contactInfo = `
@@ -102,6 +106,16 @@
         async function updateStatus(id, newStatus) {
             showConfirmModal(`Mark booking #${id} as ${newStatus}?`, async () => {
                 const res = await fetchAPI('bookings/update_status.php', 'POST', { booking_id: id, status: newStatus });
+                if (res.message) {
+                    alert(res.message);
+                    loadBookings();
+                }
+            });
+        }
+
+        async function deleteBooking(id) {
+            showConfirmModal(`Permanently delete booking #${id}?`, async () => {
+                const res = await fetchAPI('bookings/delete.php', 'POST', { booking_id: id });
                 if (res.message) {
                     alert(res.message);
                     loadBookings();
